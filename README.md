@@ -22,10 +22,6 @@
 >
 > ![表2-2 软件工程师的任务清单（中英对照）](https://oc.sjtu.edu.cn/courses/48894/files/5116866/preview?verifier=6ogAPjoGuA84rt4bfh1zJrdJRWq7HKCtwcwuH2B3)
 
-## 安装
-
-下载后直接在终端中调用即可。
-
 ## 使用说明
 
-直接运行即可进入交互式界面。也可以调用时添加参数以立即执行命令。
+直接运行以进入交互式界面。
