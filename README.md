@@ -1,12 +1,11 @@
 # Help-Goods
 
+[![Python Dependency](https://img.shields.io/badge/Python-v3.x-blue)](https://www.python.org)
+[![Canvas Page](https://img.shields.io/badge/Canvas-“你帮我助”软件开发-red)](https://oc.sjtu.edu.cn/courses/48894/assignments/181452)
+
 本项目是上海交通大学《CS3331-软件工程》课程作业。
 
-**项目仍未完成，请不要直接使用！**（不过我想也不会有人来用的吧）
-
 ## “你帮我助”软件开发
-
-[Canvas页面](https://oc.sjtu.edu.cn/courses/48894/assignments/181452)
 
 > 个人项目（10月11日前完成）：
 >
@@ -24,7 +23,7 @@
 
 ## 使用说明
 
-直接运行以进入交互式界面。
+直接运行以进入交互式界面。需要 Python 环境。数据存储在 `goods.db` 中，删除此文件将导致数据丢失！
 
 添加一条物品信息：
 ```
