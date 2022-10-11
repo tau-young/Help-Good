@@ -23,15 +23,15 @@
 
 ## 使用说明
 
-直接运行以进入交互式界面。需要 Python 环境。数据存储在 `goods.db` 中，删除此文件将导致数据丢失！
+直接运行以进入交互式界面。需要 Python 运行环境。数据存储在 `goods.db` 中，删除此文件将导致数据丢失！
 
 添加一条物品信息：
 ```
-(goods) add item
+(goods) add <item>
 ```
 删除一条物品信息：
 ```
-(goods) del item
+(goods) del <item>
 ```
 列出所有物品信息：
 ```
@@ -39,7 +39,7 @@
 ```
 查找物品信息：
 ```
-(goods) search item
+(goods) search <item>
 ```
 重置数据库：
 ```

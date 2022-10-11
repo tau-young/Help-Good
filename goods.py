@@ -1,6 +1,6 @@
 import cmd, sqlite3
 
-CLI_VERSION = '0.1.0'
+CLI_VERSION = '0.1.1'
 
 class goodsShell(cmd.Cmd):
 	intro = 'Help Goods %s\n键入\'help\'或者\'?\'查看所有命令。' % CLI_VERSION
@@ -12,25 +12,22 @@ class goodsShell(cmd.Cmd):
 		self.cur = self.conn.cursor()
 		self.cur.execute('CREATE TABLE IF NOT EXISTS GOODS (ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL);')
 
-	def print_records(self):
-		for record in self.cur.fetchall(): print(record[1])
-
 	def do_add(self, arg):
-		'添加一个物品。'
-		self.cur.execute('INSERT INTO GOODS (NAME) VALUES ("%s")' % arg)
+		'add <item>\n添加一个物品。'
+		self.cur.execute('INSERT INTO GOODS (NAME) VALUES ("%s");' % arg)
 		self.conn.commit()
 	def do_del(self, arg):
-		'删除一个物品。'
-		self.cur.execute('DELETE FROM GOODS WHERE NAME = "%s" LIMIT 1' % arg)
+		'del <item>\n删除一个物品。'
+		self.cur.execute('DELETE FROM GOODS WHERE NAME = "%s" LIMIT 1;' % arg)
 		self.conn.commit()
 	def do_list(self, arg):
 		'列出所有物品。'
-		self.cur.execute('SELECT * FROM GOODS')
-		self.print_records()
+		self.cur.execute('SELECT * FROM GOODS;')
+		for record in self.cur.fetchall(): print(record[1])
 	def do_search(self, arg):
-		'查找物品。'
-		self.cur.execute('SELECT * FROM GOODS WHERE NAME LIKE "%%%s%%"' % arg)
-		self.print_records()
+		'search <item>\n查找物品。'
+		self.cur.execute('SELECT * FROM GOODS WHERE NAME LIKE "%%%s%%";' % arg)
+		for record in self.cur.fetchall(): print(record[1])
 	def do_reset(self, arg):
 		'重置数据库。'
 		self.cur.execute('DROP TABLE GOODS')
