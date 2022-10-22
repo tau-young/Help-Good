@@ -1,0 +1,43 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "pyinstaller",
+			"type": "shell",
+			"command": "pyinstaller",
+			"args": [
+				"-F",
+				"${fileBasename}"
+			],
+			"group": "build"
+		},
+		{
+			"label": "clean",
+			"type": "shell",
+			"command": "rm",
+			"args": [
+				"-rf",
+				"build",
+				"${fileBasenameNoExtension}.spec"
+			],
+			"group": "build"
+		},
+		{
+			"label": "all in one",
+			"type": "shell",
+			"command": "echo",
+			"args": ["done"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"dependsOn": [
+				"pyinstaller",
+				"clean"
+			],
+			"dependsOrder": "sequence"
+		}
+	]
+}

@@ -1,6 +1,6 @@
 import cmd, sqlite3
 
-CLI_VERSION = '0.1.1'
+CLI_VERSION = '1.0'
 
 class goodsShell(cmd.Cmd):
 	intro = 'Help Goods %s\n键入\'help\'或者\'?\'查看所有命令。' % CLI_VERSION
@@ -18,7 +18,7 @@ class goodsShell(cmd.Cmd):
 		self.conn.commit()
 	def do_del(self, arg):
 		'del <item>\n删除一个物品。'
-		self.cur.execute('DELETE FROM GOODS WHERE NAME = "%s" LIMIT 1;' % arg)
+		self.cur.execute('DELETE FROM GOODS WHERE ROWID IN (SELECT ID FROM GOODS WHERE NAME = "%s" LIMIT 1);' % arg)
 		self.conn.commit()
 	def do_list(self, arg):
 		'列出所有物品。'
