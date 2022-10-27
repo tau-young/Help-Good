@@ -1,6 +1,6 @@
 import cmd, sqlite3, prettytable
 
-CLI_VERSION = '2.0'
+CLI_VERSION = '2.0.1'
 
 class goodsShell(cmd.Cmd):
 	intro = 'Help Goods %s\nType \'help\' or \'?\' to show all commands.' % CLI_VERSION
@@ -19,8 +19,7 @@ class goodsShell(cmd.Cmd):
 		added, updated = 0, 0
 		for argi in args:
 			if item:
-				try: quantity = int(argi)
-				except: quantity = 1
+				quantity = int(argi) if argi.isdigit() else 1
 				self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
 				if record := self.cur.fetchone():
 					self.cur.execute('UPDATE GOODS SET QUANTITY = %d WHERE NAME = "%s"' % (record[2] + quantity, item))
@@ -28,12 +27,8 @@ class goodsShell(cmd.Cmd):
 				else:
 					self.cur.execute('INSERT INTO GOODS (NAME, QUANTITY) VALUES ("%s", %d);' % (item, quantity))
 					added += 1
-				try:
-					int(argi)
-					item = ''
-				except: item = argi
-			else:
-				item = argi
+				item = '' if argi.isdigit() else argi
+			else: item = argi
 		if item:
 			quantity = 1
 			self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
@@ -56,8 +51,7 @@ class goodsShell(cmd.Cmd):
 		deleted, updated = 0, 0
 		for argi in args:
 			if item:
-				try: quantity = int(argi)
-				except: quantity = 1
+				quantity = int(argi) if argi.isdigit() else 1
 				self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
 				if record := self.cur.fetchone():
 					if record[2] < quantity:
@@ -72,12 +66,8 @@ class goodsShell(cmd.Cmd):
 				else:
 					print('Error: %s Not Found!' % item)
 					return
-				try:
-					int(argi)
-					item = ''
-				except: item = argi
-			else:
-				item = argi
+				item = '' if argi.isdigit() else argi
+			else: item = argi
 		if item:
 			quantity = 1
 			self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
