@@ -23,24 +23,38 @@
 
 ## 使用说明
 
-直接运行以进入交互式界面。需要 Python 运行环境。数据存储在 `goods.db` 中，删除此文件将导致数据丢失！
+使用 Python3 解释器执行 `goods.py` 文件，或直接运行 `dist/goods`（不在本仓库）。数据存储在 `goods.db` 中，删除此文件将导致数据丢失！输出结果需要 `prettytable` 包，如果使用解释器运行，请确保安装了它：
+```sh
+pip3 install prettytable
+```
 
 添加一条物品信息：
 ```
-(goods) add <item1> <item2> ...
+(goods) add <item1> <quantity1> <item2> <quantity2> ...
 ```
+请在 `add` 命令后交替输入名称与数量，用空格分割。如果数量为 1，则可省略。如：
+```
+add item 1
+add item
+```
+都将添加一条数量为 1 的物品信息。如果物品已存在，则将更新物品数量。
+
 删除一条物品信息：
 ```
-(goods) del <item1> <item2> ...
+(goods) del <item1> <quantity1> <item2> <quantity2> ...
 ```
+用法与 `add` 命令一致。如果要删除的数量恰好等于库存数量，则该物品会被删除，否则将只更新数量。
+
 列出所有物品信息：
 ```
 (goods) list
 ```
 查找物品信息：
 ```
-(goods) search <item>
+(goods) search <item1> <item2> ...
 ```
+支持模糊查找。
+
 重置数据库：
 ```
 (goods) reset

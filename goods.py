@@ -1,6 +1,6 @@
-import cmd, sqlite3
+import cmd, sqlite3, prettytable
 
-CLI_VERSION = '1.1'
+CLI_VERSION = '2.0'
 
 class goodsShell(cmd.Cmd):
 	intro = 'Help Goods %s\nType \'help\' or \'?\' to show all commands.' % CLI_VERSION
@@ -10,44 +10,124 @@ class goodsShell(cmd.Cmd):
 		super(goodsShell, self).__init__()
 		self.conn = sqlite3.connect('goods.db')
 		self.cur = self.conn.cursor()
-		self.cur.execute('CREATE TABLE IF NOT EXISTS GOODS (ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL);')
+		self.cur.execute('CREATE TABLE IF NOT EXISTS GOODS (ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL, QUANTITY INT);')
 
 	def do_add(self, arg):
-		'add <item1> <item2> ...\nAdd items, seperated by space.'
-		items = str(arg).split()
-		for item in items:
-			self.cur.execute('INSERT INTO GOODS (NAME) VALUES ("%s");' % item)
-		self.conn.commit()
-		print('Added %d item(s)' % len(items))
-	def do_del(self, arg):
-		'del <item1> <item2> ...\nDelete items, seperated by space.'
-		items = str(arg).split()
-		for item in items:
+		'Usage: add <item1> <quantity1> <item2> <quantity2> ...\nAdd items, seperated by space.'
+		args = str(arg).split()
+		item = ''
+		added, updated = 0, 0
+		for argi in args:
+			if item:
+				try: quantity = int(argi)
+				except: quantity = 1
+				self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
+				if record := self.cur.fetchone():
+					self.cur.execute('UPDATE GOODS SET QUANTITY = %d WHERE NAME = "%s"' % (record[2] + quantity, item))
+					updated += 1
+				else:
+					self.cur.execute('INSERT INTO GOODS (NAME, QUANTITY) VALUES ("%s", %d);' % (item, quantity))
+					added += 1
+				try:
+					int(argi)
+					item = ''
+				except: item = argi
+			else:
+				item = argi
+		if item:
+			quantity = 1
 			self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
-			if not self.cur.fetchone():
-				print('Error: %s Not Found' % item)
-				return
-		for item in items:
-			self.cur.execute('DELETE FROM GOODS WHERE ROWID IN (SELECT ID FROM GOODS WHERE NAME = "%s" LIMIT 1);' % item)
+			if record := self.cur.fetchone():
+				self.cur.execute('UPDATE GOODS SET QUANTITY = %d WHERE NAME = "%s"' % (record[2] + quantity, item))
+				updated += 1
+			else:
+				self.cur.execute('INSERT INTO GOODS (NAME, QUANTITY) VALUES ("%s", %d);' % (item, quantity))
+				added += 1
 		self.conn.commit()
-		print('Deleted %d item(s)' % len(items))
+		if added and updated: print('Added %d item(s), updated %d item(s)' % (added, updated))
+		else:
+			if added: print('Added %d item(s)' % added)
+			if updated: print('Updated %d item(s)' % updated)
+
+	def do_del(self, arg):
+		'Usage: del <item1> <quantity1> <item2> <quantity2> ...\nDelete items, seperated by space.'
+		args = str(arg).split()
+		item = ''
+		deleted, updated = 0, 0
+		for argi in args:
+			if item:
+				try: quantity = int(argi)
+				except: quantity = 1
+				self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
+				if record := self.cur.fetchone():
+					if record[2] < quantity:
+						print('Error: Attempt to delete %d of %s, but it only has %d.' % (quantity, record[1], record[2]))
+						return
+					if record[2] == quantity:
+						self.cur.execute('DELETE FROM GOODS WHERE NAME = "%s"' % record[1])
+						deleted += 1
+					else:
+						self.cur.execute('UPDATE GOODS SET QUANTITY = %d WHERE NAME = "%s"' % (record[2] - quantity, item))
+						updated += 1
+				else:
+					print('Error: %s Not Found!' % item)
+					return
+				try:
+					int(argi)
+					item = ''
+				except: item = argi
+			else:
+				item = argi
+		if item:
+			quantity = 1
+			self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
+			if record := self.cur.fetchone():
+				if record[2] < quantity:
+					print('Error: Attempt to delete %d of %s, but it only has %d.' % (quantity, record[1], record[2]))
+					return
+				if record[2] == quantity:
+					self.cur.execute('DELETE FROM GOODS WHERE NAME = "%s"' % record[1])
+					deleted += 1
+				else:
+					self.cur.execute('UPDATE GOODS SET QUANTITY = %d WHERE NAME = "%s"' % (record[2] - quantity, item))
+					updated += 1
+			else:
+				print('Error: %s Not Found!' % item)
+				return
+		self.conn.commit()
+		if deleted and updated: print('Deleted %d item(s), updated %d item(s)' % (deleted, updated))
+		else:
+			if deleted: print('Deleted %d item(s)' % deleted)
+			if updated: print('Updated %d item(s)' % updated)
+
 	def do_list(self, arg):
 		'List all items.'
 		self.cur.execute('SELECT * FROM GOODS;')
-		for record in self.cur.fetchall(): print(record[1])
+		result = prettytable.PrettyTable()
+		result.field_names = ('Name', 'Quantity')
+		for record in self.cur.fetchall(): result.add_row(record[1:])
+		print(result)
+
 	def do_search(self, arg):
-		'search <item>\nSearch for item.'
-		self.cur.execute('SELECT * FROM GOODS WHERE NAME LIKE "%%%s%%";' % arg)
-		records = self.cur.fetchall()
-		if not records:
-			print('%s Not Found' % arg)
-		for record in records: print(record[1])
+		'Usage: search <item1> <item2> ...\nSearch for item.'
+		items = str(arg).split()
+		for item in items:
+			print('Search for %s:' % item)
+			self.cur.execute('SELECT * FROM GOODS WHERE NAME LIKE "%%%s%%";' % item)
+			if records := self.cur.fetchall():
+				result = prettytable.PrettyTable()
+				result.field_names = ('Name', 'Quantity')
+				for record in records: result.add_row(record[1:])
+				print(result)
+			else: print('%s Not Found!' % item)
+
 	def do_reset(self, arg):
 		'Reset Database.'
 		self.cur.execute('DROP TABLE GOODS')
-		self.cur.execute('CREATE TABLE GOODS (ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL);')
+		self.cur.execute('CREATE TABLE GOODS (ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL, QUANTITY INT);')
 		self.conn.commit()
 		print('Reset Database')
+
 	def do_exit(self, arg):
 		'Exit Goods CLI.'
 		self.cur.close()
