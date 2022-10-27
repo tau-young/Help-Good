@@ -1,9 +1,9 @@
 import cmd, sqlite3
 
-CLI_VERSION = '1.0'
+CLI_VERSION = '1.1'
 
 class goodsShell(cmd.Cmd):
-	intro = 'Help Goods %s\n键入\'help\'或者\'?\'查看所有命令。' % CLI_VERSION
+	intro = 'Help Goods %s\nType \'help\' or \'?\' to show all commands.' % CLI_VERSION
 	prompt = '(goods) '
 
 	def __init__(self):
@@ -13,30 +13,46 @@ class goodsShell(cmd.Cmd):
 		self.cur.execute('CREATE TABLE IF NOT EXISTS GOODS (ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL);')
 
 	def do_add(self, arg):
-		'add <item>\n添加一个物品。'
-		self.cur.execute('INSERT INTO GOODS (NAME) VALUES ("%s");' % arg)
+		'add <item1> <item2> ...\nAdd items, seperated by space.'
+		items = str(arg).split()
+		for item in items:
+			self.cur.execute('INSERT INTO GOODS (NAME) VALUES ("%s");' % item)
 		self.conn.commit()
+		print('Added %d item(s)' % len(items))
 	def do_del(self, arg):
-		'del <item>\n删除一个物品。'
-		self.cur.execute('DELETE FROM GOODS WHERE ROWID IN (SELECT ID FROM GOODS WHERE NAME = "%s" LIMIT 1);' % arg)
+		'del <item1> <item2> ...\nDelete items, seperated by space.'
+		items = str(arg).split()
+		for item in items:
+			self.cur.execute('SELECT * FROM GOODS WHERE NAME = "%s";' % item)
+			if not self.cur.fetchone():
+				print('Error: %s Not Found' % item)
+				return
+		for item in items:
+			self.cur.execute('DELETE FROM GOODS WHERE ROWID IN (SELECT ID FROM GOODS WHERE NAME = "%s" LIMIT 1);' % item)
 		self.conn.commit()
+		print('Deleted %d item(s)' % len(items))
 	def do_list(self, arg):
-		'列出所有物品。'
+		'List all items.'
 		self.cur.execute('SELECT * FROM GOODS;')
 		for record in self.cur.fetchall(): print(record[1])
 	def do_search(self, arg):
-		'search <item>\n查找物品。'
+		'search <item>\nSearch for item.'
 		self.cur.execute('SELECT * FROM GOODS WHERE NAME LIKE "%%%s%%";' % arg)
-		for record in self.cur.fetchall(): print(record[1])
+		records = self.cur.fetchall()
+		if not records:
+			print('%s Not Found' % arg)
+		for record in records: print(record[1])
 	def do_reset(self, arg):
-		'重置数据库。'
+		'Reset Database.'
 		self.cur.execute('DROP TABLE GOODS')
 		self.cur.execute('CREATE TABLE GOODS (ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL);')
 		self.conn.commit()
+		print('Reset Database')
 	def do_exit(self, arg):
-		'退出交互式环境。'
+		'Exit Goods CLI.'
 		self.cur.close()
 		self.conn.close()
+		print('See you~')
 		return True
 
 if __name__ == '__main__':

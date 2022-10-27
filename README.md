@@ -1,6 +1,6 @@
 # Help-Goods
 
-[![Python Dependency](https://img.shields.io/badge/Python-v3.x-blue)](https://www.python.org)
+[![Python Dependency](https://img.shields.io/badge/Python-v3.y-blue)](https://www.python.org)
 [![Canvas Page](https://img.shields.io/badge/Canvas-“你帮我助”软件开发-red)](https://oc.sjtu.edu.cn/courses/48894/assignments/181452)
 
 本项目是上海交通大学《CS3331-软件工程》课程作业。
@@ -27,11 +27,11 @@
 
 添加一条物品信息：
 ```
-(goods) add <item>
+(goods) add <item1> <item2> ...
 ```
 删除一条物品信息：
 ```
-(goods) del <item>
+(goods) del <item1> <item2> ...
 ```
 列出所有物品信息：
 ```
