@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import cmd, sqlite3, prettytable
 
 CLI_VERSION = '2.0.1'
